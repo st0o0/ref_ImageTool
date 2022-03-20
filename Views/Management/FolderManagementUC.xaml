@@ -1,0 +1,731 @@
+﻿<UserControl
+    x:Class="ImageTool.Views.Management.FolderManagementUC"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ValidationRules="clr-namespace:ImageTool.ValidationRules"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ImageTool.Views.Management"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:paz="clr-namespace:Wpf.Controls.PanAndZoom;assembly=Wpf.Controls.PanAndZoom"
+    d:DesignHeight="600"
+    d:DesignWidth="1200"
+    SnapsToDevicePixels="True"
+    mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="75*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="100*" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <TextBox
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    materialDesign:HintAssist.Hint="Search"
+                    materialDesign:TextFieldAssist.HasClearButton="True"
+                    Style="{StaticResource SearchBox}">
+                    <TextBox.Text>
+                        <Binding
+                            Mode="TwoWay"
+                            Path="SearchText"
+                            UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <ValidationRules:SearchValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <ListView
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="0,0"
+                    HorizontalContentAlignment="Stretch"
+                    IsEnabled="{Binding FolderDataGridEnabled}"
+                    ItemsSource="{Binding FilteredFolders}"
+                    SelectedItem="{Binding SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource MaterialDesignListView}">
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="{x:Type ListViewItem}" />
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Orientation="Vertical">
+                                        <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{Binding Location}" />
+                                        <TextBlock Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Text="{Binding Date}" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Panel.ZIndex="2"
+                                        Command="{Binding Path=DataContext.RemoveCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}"
+                                        CommandParameter="{Binding Id}"
+                                        Content="{materialDesign:PackIcon Kind=DeleteClockOutline}"
+                                        Style="{StaticResource ButtonRectangle}" />
+                                </Grid>
+                                <Separator />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <UniformGrid
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Margin="0,5"
+                    HorizontalAlignment="Stretch"
+                    Rows="1">
+                    <Button
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Margin="2.5,0"
+                        Command="{Binding CloseCommand}"
+                        Content="{materialDesign:PackIcon Kind=WindowClose,
+                                                          Size=25}"
+                        IsEnabled="{Binding IsCloseButtonEnabled}"
+                        Style="{StaticResource Button}" />
+                    <Button
+                        Grid.Row="3"
+                        Margin="2.5,0"
+                        Command="{Binding RefreshCommand}"
+                        Content="{materialDesign:PackIcon Kind=RefreshCircle,
+                                                          Size=25}"
+                        Style="{StaticResource Button}" />
+                    <Button
+                        Grid.Row="3"
+                        Margin="2.5,0"
+                        Command="{Binding AddCommand}"
+                        Content="{materialDesign:PackIcon Kind=Add,
+                                                          Size=25}"
+                        IsEnabled="{Binding IsAddEnabled}"
+                        Style="{StaticResource Button}" />
+                    <Button
+                        Grid.Row="3"
+                        Margin="2.5,0"
+                        materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsSaving}"
+                        materialDesign:ButtonProgressAssist.Value="{Binding SaveProgress}"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource Button}"
+                        Visibility="{Binding IsSaveVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <materialDesign:PackIcon Width="25" Height="25">
+                            <materialDesign:PackIcon.Style>
+                                <Style BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}" TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind" Value="DatabaseSyncOutline" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSaveComplete}" Value="True">
+                                            <Setter Property="Kind" Value="DatabaseCheckOutline" />
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            From="0"
+                                                            To="1"
+                                                            Duration="0:0:0.8" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+                    </Button>
+                </UniformGrid>
+            </Grid>
+        </Grid>
+        <GridSplitter
+            Grid.Row="0"
+            Grid.Column="1"
+            Width="5"
+            HorizontalAlignment="Center"
+            VerticalContentAlignment="Stretch"
+            ResizeDirection="Columns"
+            Style="{StaticResource MaterialDesignGridSplitter}" />
+        <Border
+            Grid.Row="0"
+            Grid.Column="2"
+            BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="75*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border
+                    x:Name="FolderInformation"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    BorderThickness="0,0,1,0">
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Content="FolderInformation"
+                            Style="{StaticResource LabelTitle}" />
+                        <ScrollViewer
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    materialDesign:HintAssist.FloatingScale="0.75"
+                                    materialDesign:HintAssist.Hint="Location"
+                                    materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                                    IsReadOnly="{Binding FolderInformationEditMode, Mode=OneWay}"
+                                    Style="{StaticResource TextBoxInformation}"
+                                    Text="{Binding FolderLocation, Mode=TwoWay}" />
+                                <TextBox
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    materialDesign:HintAssist.FloatingScale="0.75"
+                                    materialDesign:HintAssist.Hint="Date"
+                                    materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                                    IsReadOnly="{Binding FolderInformationEditMode, Mode=OneWay}"
+                                    Style="{StaticResource TextBoxInformation}"
+                                    Text="{Binding FolderDate, Mode=TwoWay}" />
+                                <TextBox
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    materialDesign:HintAssist.FloatingScale="0.75"
+                                    materialDesign:HintAssist.Hint="Description"
+                                    materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                                    IsReadOnly="{Binding FolderInformationEditMode, Mode=OneWay}"
+                                    Style="{StaticResource TextBoxInformation}"
+                                    Text="{Binding FolderDescription, Mode=TwoWay}" />
+                            </Grid>
+                        </ScrollViewer>
+                        <ToggleButton
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            Command="{Binding FolderInformationEditCommand}"
+                            Style="{StaticResource ToggleButton}">
+                            <materialDesign:PackIcon Width="25" Height="25">
+                                <materialDesign:PackIcon.Style>
+                                    <Style BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}" TargetType="materialDesign:PackIcon">
+                                        <Setter Property="Kind" Value="EditOutline" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding FolderInformationEditMode}" Value="False">
+                                                <Setter Property="Kind" Value="EditOffOutline" />
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation
+                                                                Storyboard.TargetProperty="Opacity"
+                                                                From="0"
+                                                                To="1"
+                                                                Duration="0:0:0.8" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:PackIcon.Style>
+                            </materialDesign:PackIcon>
+                        </ToggleButton>
+                    </Grid>
+                </Border>
+                <GridSplitter
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Width="5"
+                    HorizontalAlignment="Center"
+                    VerticalContentAlignment="Stretch"
+                    ResizeDirection="Columns"
+                    Style="{StaticResource MaterialDesignGridSplitter}" />
+                <Grid
+                    x:Name="ImageViewerWithInformation"
+                    Grid.Row="0"
+                    Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="7*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="0"
+                        BorderThickness="1,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid
+                                x:Name="ImageView"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Visibility="{Binding ImageViewVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{materialDesign:PackIcon Kind=ErrorOutline,
+                                                                      Size=150}"
+                                    Visibility="{Binding ImageDownloadFailedVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <paz:ZoomBorder
+                                    Name="zoomBorder"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Background="Transparent"
+                                    ClipToBounds="True"
+                                    Focusable="True"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding ImageVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    ZoomSpeed="1.2">
+                                    <Image
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Source="{Binding SelectedBitmapImage, IsAsync=True, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+                                        Stretch="Uniform"
+                                        StretchDirection="Both" />
+                                </paz:ZoomBorder>
+                            </Grid>
+                            <Grid
+                                x:Name="FoundedImagesView"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Visibility="{Binding FoundedImageView, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <DataGrid
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="0"
+                                    CanUserAddRows="False"
+                                    CanUserDeleteRows="False"
+                                    CanUserResizeColumns="True"
+                                    CanUserSortColumns="True"
+                                    ColumnWidth="auto"
+                                    GridLinesVisibility="All"
+                                    HeadersVisibility="Column"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding FoundedImages, Mode=OneWay}"
+                                    Style="{StaticResource DataGrid}"
+                                    VerticalScrollBarVisibility="Auto"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    VirtualizingPanel.VirtualizationMode="Recycling">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding FileName}" Header="Filename">
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding RawFilePath}" Header="RAW filepath">
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding PngFilePath}" Header="PNG filepath">
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTemplateColumn Width="*" Header="Upload Progress">
+                                            <DataGridTemplateColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                                                </Style>
+                                            </DataGridTemplateColumn.HeaderStyle>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ProgressBar
+                                                        Height="25"
+                                                        Margin="5"
+                                                        VerticalAlignment="Center"
+                                                        Maximum="100"
+                                                        Minimum="0"
+                                                        Value="{Binding UploadProgress}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="{materialDesign:PackIcon Kind=ProgressCheck}">
+                                            <DataGridTemplateColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                </Style>
+                                            </DataGridTemplateColumn.HeaderStyle>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Label>
+                                                        <materialDesign:PackIcon Width="25" Height="25">
+                                                            <materialDesign:PackIcon.Style>
+                                                                <Style BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}" TargetType="materialDesign:PackIcon">
+                                                                    <Setter Property="Kind" Value="ProgressUpload" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding UploadComplete}" Value="true">
+                                                                            <Setter Property="Kind" Value="ProgressCheck" />
+                                                                            <DataTrigger.EnterActions>
+                                                                                <BeginStoryboard>
+                                                                                    <Storyboard>
+                                                                                        <DoubleAnimation
+                                                                                            Storyboard.TargetProperty="Opacity"
+                                                                                            From="0"
+                                                                                            To="1"
+                                                                                            Duration="0:0:0.8" />
+                                                                                    </Storyboard>
+                                                                                </BeginStoryboard>
+                                                                            </DataTrigger.EnterActions>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </materialDesign:PackIcon.Style>
+                                                        </materialDesign:PackIcon>
+                                                    </Label>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Border
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    BorderThickness="0,1,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto" />
+                                        </Grid.RowDefinitions>
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            BorderThickness="0"
+                                            Content="FoundedFiles"
+                                            Style="{StaticResource LabelTitle}" />
+                                        <Button
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            Command="{Binding UploadImagesCommand}"
+                                            Content="{materialDesign:PackIcon Kind=CheckCircleOutline,
+                                                                              Size=25}"
+                                            IsEnabled="{Binding IsUploadImagesButtonEnabled}"
+                                            Style="{StaticResource ButtonRectangle}" />
+                                        <Button
+                                            Grid.Row="0"
+                                            Grid.Column="2"
+                                            Command="{Binding RepeatUploadImagesCommand}"
+                                            Content="{materialDesign:PackIcon Kind=CancelCircleOutline,
+                                                                              Size=25}"
+                                            IsEnabled="{Binding IsRepeatUploadImagesButtonEnabled}"
+                                            Style="{StaticResource ButtonRectangle}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <GridSplitter
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Height="5"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        ResizeDirection="Rows"
+                        Style="{StaticResource MaterialDesignGridSplitter}" />
+                    <Grid Grid.Row="2" Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            BorderThickness="1,1,1,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <DataGrid
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="0"
+                                    CanUserAddRows="False"
+                                    CanUserDeleteRows="False"
+                                    CanUserResizeColumns="True"
+                                    CanUserSortColumns="True"
+                                    ColumnWidth="*"
+                                    GridLinesVisibility="All"
+                                    HeadersVisibility="Column"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding Exif, Mode=OneWay}"
+                                    Style="{StaticResource DataGrid}"
+                                    VerticalScrollBarVisibility="Auto"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    VirtualizingPanel.VirtualizationMode="Recycling">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding TagName}" Header="TagName">
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0,0,1,0" />
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding TagDescription}" Header="TagDescription">
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="Margin" Value="2.5,0,0,0" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    BorderThickness="0,1,0,0"
+                                    Content="Exif-Information"
+                                    Style="{StaticResource LabelTitle}" />
+                            </Grid>
+                        </Border>
+                        <GridSplitter
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Width="5"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Stretch"
+                            ResizeDirection="Columns"
+                            Style="{StaticResource MaterialDesignGridSplitter}" />
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            BorderThickness="1,1,1,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <ScrollViewer
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    VerticalScrollBarVisibility="Auto">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto" />
+                                        </Grid.RowDefinitions>
+                                        <TextBox
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            materialDesign:HintAssist.FloatingScale="0.75"
+                                            materialDesign:HintAssist.Hint="Description"
+                                            IsReadOnly="{Binding ImageInformationEditMode, Mode=OneWay}"
+                                            Style="{StaticResource TextBoxInformation}"
+                                            Text="{Binding ImageDescription, Mode=TwoWay}" />
+                                    </Grid>
+                                </ScrollViewer>
+                                <ToggleButton
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Command="{Binding ImageInformationEditCommand}"
+                                    Style="{StaticResource ToggleButton}">
+                                    <materialDesign:PackIcon Width="25" Height="25">
+                                        <materialDesign:PackIcon.Style>
+                                            <Style BasedOn="{StaticResource {x:Type materialDesign:PackIcon}}" TargetType="materialDesign:PackIcon">
+                                                <Setter Property="Kind" Value="EditOutline" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ImageInformationEditMode}" Value="False">
+                                                        <Setter Property="Kind" Value="EditOffOutline" />
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation
+                                                                        Storyboard.TargetProperty="Opacity"
+                                                                        From="0"
+                                                                        To="1"
+                                                                        Duration="0:0:0.8" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:PackIcon.Style>
+                                    </materialDesign:PackIcon>
+                                </ToggleButton>
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    BorderThickness="0,1,0,0"
+                                    Content="ImageInformation"
+                                    Style="{StaticResource LabelTitle}" />
+                            </Grid>
+                        </Border>
+                        <GridSplitter
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            Width="5"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Stretch"
+                            ResizeDirection="Columns"
+                            Style="{StaticResource MaterialDesignGridSplitter}" />
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="4"
+                            BorderThickness="1,1,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <ListView
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="0"
+                                    HorizontalContentAlignment="Stretch"
+                                    BorderThickness="0"
+                                    IsEnabled="{Binding ImageListViewEnable}"
+                                    ItemsSource="{Binding Images}"
+                                    SelectedItem="{Binding SelectedImage, Mode=TwoWay}"
+                                    Style="{StaticResource MaterialDesignListView}">
+                                    <ListView.ItemContainerStyle>
+                                        <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="{x:Type ListBoxItem}" />
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:Name="DoubleLineDataTemplate">
+                                            <Border
+                                                Margin="0"
+                                                HorizontalAlignment="Stretch"
+                                                BorderThickness="0,0,0,1">
+                                                <TextBlock
+                                                    FontSize="15"
+                                                    FontWeight="Normal"
+                                                    Text="{Binding Name}" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    BorderThickness="0,1,0,0"
+                                    Content="Images"
+                                    Style="{StaticResource LabelTitle}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

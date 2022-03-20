@@ -1,0 +1,130 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="da\**" />
+    <Compile Remove="ViewModels\Management\**" />
+    <EmbeddedResource Remove="da\**" />
+    <EmbeddedResource Remove="ViewModels\Management\**" />
+    <None Remove="da\**" />
+    <None Remove="ViewModels\Management\**" />
+    <Page Remove="da\**" />
+    <Page Remove="ViewModels\Management\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\CopyMe.MySqlConnector.tt.txt" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\DataAnnotations.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\DataModel.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\EditableObject.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\Equatable.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\Humanizer.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.MySql.Tools.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.MySql.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.Tools.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\MultipleFiles.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\NotifyDataErrorInfo.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\NotifyPropertyChanged.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\ObsoleteAttributes.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\PluralizationService.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\T4Model.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysqlconnector\3.3.0\contentFiles\any\any\LinqToDB.Templates\Validation.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\CopyMe.MySql.tt.txt" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\DataAnnotations.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\DataModel.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\EditableObject.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\Equatable.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\Humanizer.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.MySql.Tools.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.MySql.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.Tools.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\LinqToDB.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\MultipleFiles.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\NotifyDataErrorInfo.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\NotifyPropertyChanged.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\ObsoleteAttributes.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\PluralizationService.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\T4Model.ttinclude" />
+    <None Remove="C:\Users\St00.LAPTOPJAN\.nuget\packages\linq2db.mysql\3.3.0\contentFiles\any\any\LinqToDB.Templates\Validation.ttinclude" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FlickrNet" Version="3.26.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
+    <PackageReference Include="MetadataExtractor" Version="2.7.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="MVVMLight.Messaging" Version="1.0.0" />
+    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog.Extensions.Hosting" Version="1.7.4" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
+    <PackageReference Include="Wpf.Controls.PanAndZoom" Version="2.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="InputBoxLibrary">
+      <HintPath>..\Libraries\DLLs\InputBoxLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="JSLibrary">
+      <HintPath>..\Libraries\DLLs\JSLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="WPFLibrary">
+      <HintPath>..\Libraries\DLLs\WPFLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
